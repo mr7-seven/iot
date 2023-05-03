@@ -46,7 +46,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     }
-    setInterval(function () {
-      updateDataChart();
-    }, 3000);
   });
