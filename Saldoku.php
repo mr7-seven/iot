@@ -1,64 +1,48 @@
-$uid = "KODE_UID_KARTU"; // UID kartu yang ingin dijadikan acuan
+<?php
+// Konfigurasi database
+require_once('db_config.php');
 
-// Mengambil saldo saat ini dari database
+// baca data dari request POST dalam format JSON
+$json = file_get_contents('php://input');
+$postData = json_decode($json, true);
 
-$sql = "SELECT saldo FROM pengguna WHERE uid = :uid";
+$uid = $postData['uid'];
 
+$sql = "SELECT saldo FROM tb_data WHERE uid = :uid";
 $stmt = $pdo->prepare($sql);
-
 $stmt->bindParam(':uid', $uid);
-
 $stmt->execute();
 
 $response = array();
 
 if ($stmt->rowCount() > 0) {
-
     $saldo = $stmt->fetchColumn();
-
-    if ($saldo >= 5000) {
+    if ($saldo >= 50000) {
 
         // Lakukan pengurangan saldo
-
-        $newSaldo = $saldo - 5000;
+        $newSaldo = $saldo - 50000;
 
         // Memperbarui saldo di database
-
-        $sql = "UPDATE pengguna SET saldo = :newSaldo WHERE uid = :uid";
-
+        $sql = "UPDATE tb_data SET saldo = :newSaldo WHERE uid = :uid";
         $stmt = $pdo->prepare($sql);
-
         $stmt->bindParam(':newSaldo', $newSaldo);
-
         $stmt->bindParam(':uid', $uid);
-
         $stmt->execute();
 
-        
-
         $response['status'] = "success";
-
         $response['message'] = "Saldo berhasil dikurangi";
-
         $response['saldo'] = $newSaldo;
 
     } else {
-
         $response['status'] = "error";
-
         $response['message'] = "Saldo Anda tidak cukup";
-
         $response['saldo'] = $saldo;
-
     }
 
 } else {
-
     $response['status'] = "error";
-
     $response['message'] = "UID kartu tidak ditemukan";
-
 }
-
+header('Content-Type: application/json');
 echo json_encode($response);
-
+?>
