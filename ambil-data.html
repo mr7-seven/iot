@@ -1,0 +1,15 @@
+    <script>
+      $(document).ready(function() {
+        setInterval(updateSaldo, 5000);
+      });
+
+      function updateSaldo() {
+        $.get('get_saldo.php')
+          .done(function(response) {
+            $('#saldo-container').text(response.saldo);
+          })
+          .fail(function(xhr, status, error) {
+            console.log(error);
+          });
+      }
+    </script>
