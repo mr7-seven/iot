@@ -1,48 +1,77 @@
-// Function to update chart data
-      function updateChartData(chartData, chartLabel, chartContainer) {
-        google.charts.load("current", { packages: ["gauge"] });
-        google.charts.setOnLoadCallback(drawChart);
-
-        function drawChart() {
-          var data = google.visualization.arrayToDataTable([
-            ["Label", "Value"],
-            [chartLabel, chartData],
-          ]);
-
-          var options = {
-            width: 200,
-            height: 200,
-            redFrom: 90,
-            redTo: 100,
-            yellowFrom: 75,
-            yellowTo: 90,
-            minorTicks: 5,
-          };
-
-          var chart = new google.visualization.Gauge(document.getElementById(chartContainer));
-          chart.draw(data, options);
-        }
-      }
-
-      // Function to fetch random data from PHP
-      function fetchRandomData() {
-        $.ajax({
-          url: "get_random_data.php",
-          dataType: "json",
-          success: function (data) {
-            var value1 = data.value1;
-            var value2 = data.value2;
-
-            updateChartData(value1, "Tegangan", "chart-container1");
-            updateChartData(value2, "Arus", "chart-container2");
+FusionCharts.ready(function () {
+        var chartConfig1 = {
+          type: "cylinder",
+          renderAt: "chart-container1",
+          width: "200",
+          height: "350",
+          dataFormat: "json",
+          dataSource: {
+            chart: {
+              theme: "fusion",
+              caption: "Water Level 1",
+              lowerLimit: "0",
+              upperLimit: "100",
+              lowerLimitDisplay: "Empty",
+              upperLimitDisplay: "Full",
+              numberSuffix: "%",
+              showValue: "0",
+              showTickValues: "0",
+              showTickMarks: "0",
+              cylFillColor: "#1aaf5d",
+              cylRadius: "60",
+              cylHeight: "150",
+            },
+            value: "0",
           },
-          error: function (xhr, status, error) {
-            console.log("Error:", error);
-          },
-        });
-      }
+        };
 
-      // Fetch random data every 1 second
-      setInterval(function () {
-        fetchRandomData();
-      }, 1000);
+        var chartConfig2 = {
+          type: "cylinder",
+          renderAt: "chart-container2",
+          width: "200",
+          height: "350",
+          dataFormat: "json",
+          dataSource: {
+            chart: {
+              theme: "fusion",
+              caption: "Water Level 2",
+              lowerLimit: "0",
+              upperLimit: "100",
+              lowerLimitDisplay: "Empty",
+              upperLimitDisplay: "Full",
+              numberSuffix: "%",
+              showValue: "0",
+              showTickValues: "0",
+              showTickMarks: "0",
+              cylFillColor: "#1aaf5d",
+              cylRadius: "60",
+              cylHeight: "150",
+            },
+            value: "0",
+          },
+        };
+
+        var chartObj1 = new FusionCharts(chartConfig1);
+        var chartObj2 = new FusionCharts(chartConfig2);
+
+        chartObj1.render();
+        chartObj2.render();
+
+        // Fetch random data and update charts
+        setInterval(function () {
+          $.ajax({
+            url: "get_random_data.php",
+            dataType: "json",
+            success: function (data) {
+              var value1 = data.value1;
+              var value2 = data.value2;
+
+              chartObj1.feedData("&value=" + value1);
+              chartObj2.feedData("&value=" + value2);
+            },
+            error: function (xhr, status, error) {
+              console.log("Error:", error);
+            },
+          });
+        }, 1000);
+      });
