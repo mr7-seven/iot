@@ -19,7 +19,7 @@ try {
         $response = "Data berhasil diupdate";
         echo $response;
     } else {
-        $response = "Gagal mengupdate data";
+        $response = "Gagal meng-update data";
         echo $response;
     }
 } catch (PDOException $e) {
