@@ -1,3 +1,6 @@
+<?php
+include 'db_config.php';
+date_default_timezone_set('Asia/Makassar');
 // Fungsi untuk mengirim notifikasi ke Telegram
 function sendTelegramNotification($telegram_message)
 {
@@ -20,25 +23,37 @@ function sendTelegramNotification($telegram_message)
     }
 }
 
-function sendMessage($chatID, $message) {
-    $token = "xxx";
-    $url = "https://api.telegram.org/bot" . $token . "/sendMessage";
-    $data = [
-        'chat_id' => $chatID,
-        'text' => $message
-    ];
-    $options = [
-        'http' => [
-            'method' => 'POST',
-            'header' => 'Content-Type: application/x-www-form-urlencoded',
-            'content' => http_build_query($data),
-        ],
-    ];
-    $context = stream_context_create($options);
-    $result = file_get_contents($url, false, $context);
-    if ($result === false) {
-        echo "Pesan gagal terkirim.";
-    } else {
-        echo "Pesan berhasil terkirim.";
-    }
+// baca data dari request POST dalam format JSON
+$json = file_get_contents('php://input');
+$postData = json_decode($json, true);
+
+// periksa apakah ada data POST yang diterima
+if (!empty($postData)) {
+  // ambil nilai suhu, kelembapan, dan lux dari data POST
+  $level = "100";
+
+  $query = "INSERT INTO tb_data (level, waktu) VALUES (:level, NOW()";
+  $stmt = $conn->prepare($query);
+  $stmt->bindParam(':level', $level);
+  $stmt->execute();
+
+  $today = date('d-m-Y');
+  $pesan = "";
+
+  if ($level < 200) {
+    $pesan = "Tanggal : " . $today . "\n\n Status : LOw xxxxxxxx  \n\n By fulan";
+  } elseif ($level) {
+    $pesan = "xxxxxx";
+  }
+
+  sendTelegramNotification($pesan);
+
+  if ($stmt->rowCount() > 0) {
+    $response = array('status' => 'success', 'pesan' => 'Data Berhasil Tersimpan.');
+  } else {
+    $response = array('status' => 'error', 'pesan' => 'Data Gagal Tersimpan.');
+  }
+  // kirim response dalam format JSON
+  header('Content-Type: application/json');
+  echo json_encode($response);
 }
