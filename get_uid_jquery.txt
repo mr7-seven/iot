@@ -1,0 +1,64 @@
+    <script>
+        // Fungsi untuk mengatur nilai form input
+        function setUID(uid) {
+            $('#uid').val(uid);
+        }
+
+        function getUIDFromServer() {
+            $.ajax({
+                url: 'uid.php', // Ganti dengan endpoint yang sesuai di server Anda
+                method: 'GET',
+                success: function(response) {
+                    const uidFromServer = response.uid;
+                    setUID(uidFromServer);
+                },
+                error: function() {
+                    console.log('Failed to fetch UID from server');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            // Ambil UID dari server secara periodik menggunakan teknik polling
+            setInterval(function() {
+                getUIDFromServer();
+            }, 2000); // Ubah interval sesuai kebutuhan (dalam milidetik)
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Menangani submit form
+            $('#karyawanForm').submit(function(e) {
+                e.preventDefault(); // Mencegah pengiriman form secara default
+
+                // Mengambil nilai dari input
+                var uid = $('#uid').val();
+                var nama = $('#nama').val();
+                var alamat = $('#alamat').val();
+
+                // Mengirim data karyawan ke server menggunakan AJAX
+                $.ajax({
+                    url: 'insert_data.php', // Ganti dengan endpoint yang sesuai di server Anda
+                    method: 'POST',
+                    data: {
+                        uid: uid,
+                        nama: nama,
+                        alamat: alamat
+                    },
+                    success: function(response) {
+                        console.log('Data karyawan berhasil disimpan');
+                        // Atur pesan sukses atau tindakan lain di sini
+                    },
+                    error: function() {
+                        console.log('Gagal menyimpan data karyawan');
+                        // Atur pesan error atau tindakan lain di sini
+                    }
+                });
+
+                // Mengosongkan input setelah data dikirim
+                $('#uid').val('');
+                $('#nama').val('');
+                $('#alamat').val('');
+            });
+        });
+    </script>
