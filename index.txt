@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <link href="https://cdn.datatables.net/v/bs5/dt-1.13.5/b-2.4.1/b-html5-2.4.1/datatables.min.css" rel="stylesheet" />
+
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="images/poliban.png" alt="Logo" width="50" class="d-inline-block align-text-top">
+                TA 2023
+            </a>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Pricing</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled">Disabled</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col">
+                <table id="mahasiswaTable" class="display table" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Nama</th>
+                            <th>NIM</th>
+                            <th>UID</th>
+                            <th>Tanggal</th>
+                            <th>Jam Masuk</th>
+                            <th>Jam Keluar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.5/b-2.4.1/b-html5-2.4.1/datatables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Inisialisasi DataTables
+            var table = $('#mahasiswaTable').DataTable({
+                "ajax": "get_mhs.php",
+                "columns": [{
+                        "data": "nama"
+                    },
+                    {
+                        "data": "NIM"
+                    },
+                    {
+                        "data": "uid"
+                    },
+                    {
+                        "data": "tanggal"
+                    },
+                    {
+                        "data": "jam_masuk"
+                    },
+                    {
+                        "data": "jam_keluar"
+                    }
+                    // {
+                    //     "data": null,
+                    //     "defaultContent": '<button class="editBtn">Edit</button> <button class="deleteBtn">Delete</button>'
+                    // }
+                ]
+            });
+
+            // Event delegation untuk menangani event "Edit" dan "Delete"
+            $('#mahasiswaTable tbody').on('click', '.editBtn', function() {
+                var data = table.row($(this).closest('tr')).data();
+                editData(data.id);
+            });
+
+            $('#mahasiswaTable tbody').on('click', '.deleteBtn', function() {
+                var data = table.row($(this).closest('tr')).data();
+                deleteData(data.id);
+            });
+        });
+
+        // Fungsi untuk mengirim data ID untuk update
+        function editData(id) {
+            // Mengambil data dari server dengan AJAX
+            $.ajax({
+                url: 'edit_data.php',
+                type: 'POST',
+                data: {
+                    id: id
+                },
+                success: function(response) {
+                    // Memproses respons dari server (misalnya, membuka modal edit)
+                    console.log('Edit data dengan ID: ' + id);
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        // Fungsi untuk mengirim data ID untuk delete
+        function deleteData(id) {
+            // Mengirim data ke server dengan AJAX
+            $.ajax({
+                url: 'delete_data.php',
+                type: 'POST',
+                data: {
+                    id: id
+                },
+                success: function(response) {
+                    // Memproses respons dari server (misalnya, memperbarui tabel)
+                    console.log('Delete data dengan ID: ' + id);
+                    console.log(response);
+
+                    // Memperbarui tabel setelah delete berhasil
+                    table.ajax.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
